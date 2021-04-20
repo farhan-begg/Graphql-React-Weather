@@ -3,8 +3,13 @@ const express = require('express')
 const { graphqlHTTP } = require('express-graphql')
 const { buildSchema } = require('graphql')
 
-const apikey = process.env.OPENWEATHERMAP_API_KEY
+
+const cors = require('cors')
+
+
 const fetch = require('node-fetch')
+// require dotenv and call cofig
+require('dotenv').config()
 
 
 const schema = buildSchema(`
@@ -16,12 +21,20 @@ enum Units {
 }
 
 type Weather {
-    temperature: Float!
+    temperature:  Float!
     description: String!
+    feels_like: Float!
+    temp_min: Float!
+    temp_max: Float!
+    pressure: Float!
+    humidity: Float!
+    cod: String!
+    message: String!
+    
 }
 
 type Query {
-    getWeather(zip: Int!, units: Units): Weather!
+    getWeather(zip: Int!, units: Units,): Weather!
 }
     
 
@@ -29,19 +42,31 @@ type Query {
 
 const root = {
     getWeather: async ({ zip, units = 'imperial' }) => {
-          const apikey = "17cc573913cecf0e78e3b32ee69d2f57"
+        const apikey = process.env.OPENWEATHERMAP_API_KEY
           const url = `https://api.openweathermap.org/data/2.5/weather?zip=${zip}&appid=${apikey}&units=${units}`
           const res = await fetch(url)
           const json = await res.json()
-          const temperature = json.main.temp
-          const description = json.weather[0].description
-          return { temperature, description }
+          const status = parseInt(json.cod)
+          const message = json.message
+          if( status != 200){
+              return {status, message}
+          } 
+					const temperature = json.main.temp
+					const description = json.weather[0].description
+					const feels_like = json.weather[0].feels_like
+					const temp_min = json.weather[0].temp_min
+					const temp_max = json.weather[0].temp_max
+          
+          return { temperature, description, 
+           feels_like, temp_min, temp_max, status }
+        
       }
   }
   
 
 // Create an express app
 const app = express()
+app.use(cors())
 
 
 
@@ -52,6 +77,7 @@ app.use('/graphql', graphqlHTTP({
     rootValue: root,
     graphiql: true
   }))
+ 
   
 
   // Start this app
