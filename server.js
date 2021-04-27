@@ -46,23 +46,32 @@ const root = {
           const url = `https://api.openweathermap.org/data/2.5/weather?zip=${zip}&appid=${apikey}&units=${units}`
           const res = await fetch(url)
           const json = await res.json()
-          const status = parseInt(json.cod)
-          const message = json.message
-          if( status != 200){
-              return {status, message}
-          } 
-					const temperature = json.main.temp
-					const description = json.weather[0].description
-					const feels_like = json.weather[0].feels_like
-					const temp_min = json.weather[0].temp_min
-					const temp_max = json.weather[0].temp_max
-          
-          return { temperature, description, 
-           feels_like, temp_min, temp_max, status }
+          const cod = json.cod;
+    if (cod != 200 || cod == 400) {
+      return { cod: cod, message: 'The zip code does not exist' };
+    } else {
+      const temperature = json.main.temp;
+      const description = json.weather[0].description;
+      const feelsLike = json.main.feels_like;
+      const temp_min = json.main.temp_min;
+      const temp_max = json.main.temp_max;
+      const pressure = json.main.pressure;
+      const humidity = json.main.humidity;
+      return {
+        temperature: temperature,
+        description: description,
+        feels_like: feelsLike,
+        temp_min: temp_min,
+        temp_max: temp_max,
+        pressure: pressure,
+        humidity: humidity,
+        cod: cod,
+        message: "Valid City"
+        }
         
       }
   }
-  
+} 
 
 // Create an express app
 const app = express()
