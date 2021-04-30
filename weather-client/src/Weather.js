@@ -40,7 +40,18 @@ function Weather() {
   return (
 
     <div className="weather">
+     
         <div className="container">
+        <div class="animation-area">
+		<ul class="box-area">
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+		</ul>
+	    </div>
         <form onSubmit={(e) => {
             e.preventDefault()
             getWeather()
@@ -88,6 +99,8 @@ function Weather() {
             {weather ? <h1>Desc: {weather.data.getWeather.description.charAt(0,1).toUpperCase() + weather.data.getWeather.description.slice(1)}</h1> : null}
             {weather ? <h1>Humidity: {weather.data.getWeather.humidity}</h1> : null}
         </div>
+
+
 
    
         </div>
